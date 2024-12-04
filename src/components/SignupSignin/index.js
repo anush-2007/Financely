@@ -88,10 +88,11 @@ function SignupSigninComponent() {
           placeholder={"Example@123"} 
         />
         <Button 
-        text={"Signup Using Email and Password"}
+        disabled={loading}
+        text={loading ? "Loading..." : "Signup Using Email and Password"}
         onClick={signupWithEmail} />
         <p style={{ textAlign: "center" , margin:0 }}>or</p>
-        <Button text={"Signup Using Google"} blue={true} />
+        <Button text={loading ? "Loading..." : "Signup Using Google"} blue={true} />
       </form>
     </div>
   )
