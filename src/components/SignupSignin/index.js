@@ -51,44 +51,33 @@ function SignupSigninComponent() {
       } else {
         toast.error("All fields are mandatory!")
         setLoading(false);
+      }
+  }
+
+  function loginUsingEmail() {
+    console.log("Email", email);
+    console.log("Password", password);
+    if( email != "" && password != "" ) {
+      signInWithEmailAndPassword(auth, email, password)
+      .then((userCredential) => {
+        // Signed in 
+        const user = userCredential.user;
+        toast.success("User Logged In!");
+        // ...
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+      });
+    } else {
+      toast.error("All fields are mandatory!")
     }
   }
 
-function loginUsingEmail() {
-  console.log("Email", email);
-  console.log("Password", password);
-  if( email != "" && password != "" ) {
-    signInWithEmailAndPassword(auth, email, password)
-    .then((userCredential) => {
-      // Signed in 
-      const user = userCredential.user;
-      // ...
-    })
-    .catch((error) => {
-      const errorCode = error.code;
-      const errorMessage = error.message;
-    });
-  } else {
-    toast.error("All fields are mandatory!")
+  function createDoc() {
+    //Make sure that the doc with the uid does not exist
+    // Create a Doc
   }
-
-
-  signInWithEmailAndPassword(auth, email, password)
-    .then((userCredential) => {
-      // Signed in 
-      const user = userCredential.user;
-      // ...
-    })
-    .catch((error) => {
-      const errorCode = error.code;
-      const errorMessage = error.message;
-    });
-}
-
-function createDoc() {
-  //Make sure that the doc with the uid does not exist
-  // Create a Doc
-}
 
   return (
     <>
