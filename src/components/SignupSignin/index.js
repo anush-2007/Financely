@@ -3,7 +3,8 @@ import './styles.css';
 import Input from '../Input';
 import Button from '../Button';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from '../../firebase';
+import { auth, db } from '../../firebase';
+import { doc, getDoc, setDoc } from "firebase/firestore"; 
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 
@@ -61,6 +62,7 @@ function SignupSigninComponent() {
   function loginUsingEmail() {
     console.log("Email", email);
     console.log("Password", password);
+    setLoading(true);
     if( email != "" && password != "" ) {
       signInWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
@@ -68,22 +70,49 @@ function SignupSigninComponent() {
         const user = userCredential.user;
         toast.success("User Logged In!");
         console.log("User Logged In", user);
+        setLoading(false);
         navigate("/dashboard");
         // ...
       })
       .catch((error) => {
         const errorCode = error.code;
         const errorMessage = error.message;
+        setLoading(false);
         toast.error(errorMessage);
       });
     } else {
+      setLoading(false);
       toast.error("All fields are mandatory!")
     }
   }
 
-  function createDoc() {
+  async function createDoc (user) {
+    setLoading(true);
     //Make sure that the doc with the uid does not exist
     // Create a Doc
+    if (!user) return;
+
+    const userRef = doc(db, "users", user.uid);
+    const userData = await getDoc(userRef)
+    if (!userData.exists()) {
+      try {
+        await setDoc(doc(db, "users", user.uid), {
+          name: user.displayName ? user.displayName : name,
+          email: user.email,
+          photoURL: user.photoURL ? user.photoURL : "",
+          createdAt: new Date(),
+        });
+        setLoading(false);
+        toast.success("Doc Created!");
+      }
+      catch(e) {
+        setLoading(false);
+        toast.error(e.message);
+      }
+    }else {
+      setLoading(false);
+      toast.error("User already exists!");
+    }
   }
 
   return (
