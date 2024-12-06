@@ -5,6 +5,7 @@ import Button from '../Button';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from '../../firebase';
 import { toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
 
 
 function SignupSigninComponent() {
@@ -14,6 +15,7 @@ function SignupSigninComponent() {
   const [confirmPassword, setConfirmPassword] =useState("");
   const [loginForm, setLoginForm] = useState(false);
   const [loading, setLoading] =useState(false);
+  const navigate = useNavigate();
 
   function signupWithEmail() {
     setLoading(true);
@@ -35,6 +37,8 @@ function SignupSigninComponent() {
             setEmail("");
             setPassword("");
             setConfirmPassword("");
+            createDoc(user);
+            navigate("/dashboard");
             // ...
           })
           .catch((error) => {
@@ -63,11 +67,14 @@ function SignupSigninComponent() {
         // Signed in 
         const user = userCredential.user;
         toast.success("User Logged In!");
+        console.log("User Logged In", user);
+        navigate("/dashboard");
         // ...
       })
       .catch((error) => {
         const errorCode = error.code;
         const errorMessage = error.message;
+        toast.error(errorMessage);
       });
     } else {
       toast.error("All fields are mandatory!")
