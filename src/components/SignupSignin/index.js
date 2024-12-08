@@ -2,8 +2,8 @@ import React, { useState } from 'react'
 import './styles.css';
 import Input from '../Input';
 import Button from '../Button';
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
-import { auth, db } from '../../firebase';
+import { createUserWithEmailAndPassword, GoogleAuthProvider, signInWithEmailAndPassword, signInWithPopup } from "firebase/auth";
+import { auth, db, provider } from '../../firebase';
 import { doc, getDoc, setDoc } from "firebase/firestore"; 
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
@@ -115,6 +115,40 @@ function SignupSigninComponent() {
     }
   }
 
+  function googleAuth() {
+    setLoading(true);
+    try {
+      signInWithPopup(auth, provider)
+      .then((result) => {
+        // This gives you a Google Access Token. You can use it to access the Google API.
+        const credential = GoogleAuthProvider.credentialFromResult(result);
+        const token = credential.accessToken;
+        // The signed-in user info.
+        const user = result.user;
+        console.log("User>>>", user);
+        toast.success("User Authenticated!");
+        setLoading(false);
+        navigate("/dashboard");
+        // IdP data available using getAdditionalUserInfo(result)
+        // ...
+      }).catch((error) => {
+        // Handle Errors here.
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        // The email of the user's account used.
+        const email = error.customData.email;
+        // The AuthCredential type that was used.
+        const credential = GoogleAuthProvider.credentialFromError(error);
+        toast.error(errorMessage);
+        setLoading(false);
+        // ...
+      });
+    } catch (e) {
+      toast.error(e.message);
+      setLoading(false);
+    }
+  }
+
   return (
     <>
     {loginForm ? 
@@ -144,7 +178,11 @@ function SignupSigninComponent() {
               onClick={loginUsingEmail} 
             />
             <p className="p-login" >or</p>
-            <Button text={loading ? "Loading..." : "Login Using Google"} blue={true} />
+            <Button 
+              onClick={googleAuth}
+              text={loading ? "Loading..." : "Login Using Google"} 
+              blue={true} 
+            />
             <p 
               className="p-login" 
               style={{ cursor: "pointer" }} 
@@ -194,7 +232,11 @@ function SignupSigninComponent() {
               onClick={signupWithEmail} 
             />
             <p className="p-login" >or</p>
-            <Button text={loading ? "Loading..." : "Signup Using Google"} blue={true} />
+            <Button 
+              onClick={googleAuth} 
+              text={loading ? "Loading..." : "Signup Using Google"} 
+              blue={true} 
+            />
             <p 
               className="p-login" 
               style={{ cursor: "pointer" }} 
